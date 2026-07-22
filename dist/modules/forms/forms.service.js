@@ -11,7 +11,6 @@ import { Injectable } from '@nitrostack/core';
 import { MongoClient, ObjectId, GridFSBucket } from 'mongodb';
 import { Readable } from 'stream';
 import { FormsPdfService } from './forms.pdf.services.js';
-// (FormDocument is no longer stored in a flat collection — PDFs live in GridFS bucket 'form-documents')
 let FormsService = class FormsService {
     pdfService;
     client;

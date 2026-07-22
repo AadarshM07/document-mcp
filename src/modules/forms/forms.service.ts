@@ -8,12 +8,10 @@ export interface FormSession {
     formId: string;
     status: 'in_progress' | 'submitted';
     answers: Record<string, any>;
-    documentId?: ObjectId; // set once the submission PDF has been generated
+    documentId?: ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }
-
-// (FormDocument is no longer stored in a flat collection — PDFs live in GridFS bucket 'form-documents')
 
 @Injectable({ deps: [FormsPdfService] })
 export class FormsService implements OnModuleInit, OnApplicationShutdown {
