@@ -278,7 +278,6 @@ export default function DocumentViewerWidget() {
                         {loadError}
                     </div>
                 ) : isPdf && dataBase64 ? (
-                    /* Canvas-based PDF renderer — works in sandboxed production iframes */
                     <div style={{ position: 'relative' }}>
                         {rendering && (
                             <div style={{

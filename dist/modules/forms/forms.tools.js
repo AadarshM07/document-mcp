@@ -27,6 +27,9 @@ const SaveAnswerSchema = z.object({
 const SubmitFormSchema = z.object({
     sessionId: z.string().describe('The session ID of the form to submit')
 });
+const GetPreviousQuestionSchema = z.object({
+    sessionId: z.string().describe('The session ID returned from start_form')
+});
 const GetFormDocumentSchema = z.object({
     documentId: z.string().describe('The documentId returned by submit_form once the submission PDF has been generated')
 });
@@ -62,6 +65,16 @@ let FormsTools = class FormsTools {
         }
         catch (error) {
             ctx.logger.error(`Error getting next question: ${error.message}`);
+            throw error;
+        }
+    }
+    async goToPreviousQuestion(input, ctx) {
+        ctx.logger.info(`Going to previous question for session: ${input.sessionId}`);
+        try {
+            return await this.formsService.getPreviousQuestion(input.sessionId);
+        }
+        catch (error) {
+            ctx.logger.error(`Error going to previous question: ${error.message}`);
             throw error;
         }
     }
@@ -126,6 +139,19 @@ __decorate([
     __metadata("design:paramtypes", [void 0, Object]),
     __metadata("design:returntype", Promise)
 ], FormsTools.prototype, "getNextQuestion", null);
+__decorate([
+    Tool({
+        name: 'go_to_previous_question',
+        description: 'Go back to the previously answered question in an active form session. ' +
+            'Clears the previous answer so the user can re-answer it, then returns the question details. ' +
+            'After re-answering with save_answer, call get_next_question to continue forward. ' +
+            'Returns atStart: true if already at the first question.',
+        inputSchema: GetPreviousQuestionSchema
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [void 0, Object]),
+    __metadata("design:returntype", Promise)
+], FormsTools.prototype, "goToPreviousQuestion", null);
 __decorate([
     Tool({
         name: 'save_answer',

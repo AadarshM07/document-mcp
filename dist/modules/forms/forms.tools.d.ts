@@ -44,6 +44,13 @@ declare const SubmitFormSchema: z.ZodObject<{
 }, {
     sessionId: string;
 }>;
+declare const GetPreviousQuestionSchema: z.ZodObject<{
+    sessionId: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    sessionId: string;
+}, {
+    sessionId: string;
+}>;
 declare const GetFormDocumentSchema: z.ZodObject<{
     documentId: z.ZodString;
 }, "strip", z.ZodTypeAny, {
@@ -83,6 +90,23 @@ export declare class FormsTools {
         options: any;
         complete: boolean;
         message?: undefined;
+    }>;
+    goToPreviousQuestion(input: z.infer<typeof GetPreviousQuestionSchema>, ctx: ExecutionContext): Promise<{
+        message: string;
+        atStart: boolean;
+        questionId?: undefined;
+        question?: undefined;
+        type?: undefined;
+        options?: undefined;
+        previousAnswer?: undefined;
+    } | {
+        questionId: any;
+        question: any;
+        type: any;
+        options: any;
+        previousAnswer: any;
+        message: string;
+        atStart: boolean;
     }>;
     saveAnswer(input: z.infer<typeof SaveAnswerSchema>, ctx: ExecutionContext): Promise<{
         success: boolean;

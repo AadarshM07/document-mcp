@@ -48,6 +48,23 @@ export declare class FormsService implements OnModuleInit, OnApplicationShutdown
         complete: boolean;
         message?: undefined;
     }>;
+    getPreviousQuestion(sessionId: string): Promise<{
+        message: string;
+        atStart: boolean;
+        questionId?: undefined;
+        question?: undefined;
+        type?: undefined;
+        options?: undefined;
+        previousAnswer?: undefined;
+    } | {
+        questionId: any;
+        question: any;
+        type: any;
+        options: any;
+        previousAnswer: any;
+        message: string;
+        atStart: boolean;
+    }>;
     saveAnswer(sessionId: string, questionId: string, answer: any): Promise<{
         success: boolean;
         message: string;

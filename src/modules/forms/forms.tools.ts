@@ -24,6 +24,10 @@ const SubmitFormSchema = z.object({
     sessionId: z.string().describe('The session ID of the form to submit')
 });
 
+const GetPreviousQuestionSchema = z.object({
+    sessionId: z.string().describe('The session ID returned from start_form')
+});
+
 const GetFormDocumentSchema = z.object({
     documentId: z.string().describe('The documentId returned by submit_form once the submission PDF has been generated')
 });
@@ -73,6 +77,25 @@ export class FormsTools {
             return await this.formsService.getNextQuestion(input.sessionId);
         } catch (error: any) {
             ctx.logger.error(`Error getting next question: ${error.message}`);
+            throw error;
+        }
+    }
+
+    @Tool({
+        name: 'go_to_previous_question',
+        description:
+            'Go back to the previously answered question in an active form session. ' +
+            'Clears the previous answer so the user can re-answer it, then returns the question details. ' +
+            'After re-answering with save_answer, call get_next_question to continue forward. ' +
+            'Returns atStart: true if already at the first question.',
+        inputSchema: GetPreviousQuestionSchema
+    })
+    async goToPreviousQuestion(input: z.infer<typeof GetPreviousQuestionSchema>, ctx: ExecutionContext) {
+        ctx.logger.info(`Going to previous question for session: ${input.sessionId}`);
+        try {
+            return await this.formsService.getPreviousQuestion(input.sessionId);
+        } catch (error: any) {
+            ctx.logger.error(`Error going to previous question: ${error.message}`);
             throw error;
         }
     }

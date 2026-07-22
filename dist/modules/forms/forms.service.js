@@ -130,6 +130,62 @@ let FormsService = class FormsService {
             throw new Error(`Failed to get next question: ${error.message}`);
         }
     }
+    async getPreviousQuestion(sessionId) {
+        try {
+            if (!ObjectId.isValid(sessionId)) {
+                throw new Error("Invalid sessionId format");
+            }
+            const session = await this.db.collection('form_sessions').findOne({ _id: new ObjectId(sessionId) });
+            if (!session) {
+                throw new Error(`Session not found: ${sessionId}`);
+            }
+            if (session.status === 'submitted') {
+                throw new Error("Cannot go back in a submitted form.");
+            }
+            const formDoc = await this.db.collection('forms').findOne({ _id: new ObjectId(session.formId) });
+            if (!formDoc || !formDoc.questions) {
+                throw new Error("Form or questions not found");
+            }
+            const questions = formDoc.questions;
+            const frontierIndex = questions.findIndex((q) => q.required && (session.answers[q.id] === undefined || session.answers[q.id] === null || session.answers[q.id] === ''));
+            const searchUpTo = frontierIndex === -1 ? questions.length : frontierIndex;
+            if (searchUpTo === 0) {
+                return {
+                    message: "You are already at the first question. There is no previous question to go back to.",
+                    atStart: true
+                };
+            }
+            let previousQuestion = null;
+            for (let i = searchUpTo - 1; i >= 0; i--) {
+                const q = questions[i];
+                if (session.answers[q.id] !== undefined && session.answers[q.id] !== null && session.answers[q.id] !== '') {
+                    previousQuestion = q;
+                    break;
+                }
+            }
+            if (!previousQuestion) {
+                return {
+                    message: "No previously answered question found to go back to.",
+                    atStart: true
+                };
+            }
+            const updatedAnswers = { ...session.answers };
+            delete updatedAnswers[previousQuestion.id];
+            await this.db.collection('form_sessions').updateOne({ _id: new ObjectId(sessionId) }, { $set: { answers: updatedAnswers, updatedAt: new Date() } });
+            return {
+                questionId: previousQuestion.id,
+                question: previousQuestion.question,
+                type: previousQuestion.type,
+                options: previousQuestion.options,
+                previousAnswer: session.answers[previousQuestion.id],
+                message: "Previous answer cleared. Use save_answer to re-answer this question, then get_next_question to continue.",
+                atStart: false
+            };
+        }
+        catch (error) {
+            throw new Error(`Failed to get previous question: ${error.message}`);
+        }
+    }
     async saveAnswer(sessionId, questionId, answer) {
         try {
             if (!ObjectId.isValid(sessionId)) {
